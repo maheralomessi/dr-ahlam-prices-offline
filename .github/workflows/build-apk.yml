@@ -1,0 +1,49 @@
+name: Build APK (TWA)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Bubblewrap
+        run: npm i -g @bubblewrap/cli
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > release.keystore
+
+      - name: Build APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          SITE_URL="https://YOUR_USERNAME.github.io/YOUR_REPO/"
+
+          mkdir -p twa && cd twa
+
+          bubblewrap init             --manifest="${SITE_URL}manifest.webmanifest"             --directory="."             --packageId="com.dr.ahlam.prices"             --name="لائحة أسعار د. أحلام"             --launcherName="لائحة الأسعار"             --display="standalone"             --orientation="portrait"             --themeColor="#d4af37"             --backgroundColor="#ffffff"             --iconUrl="${SITE_URL}icons/icon-512.png"             --signingKeyPath="../release.keystore"             --signingKeyAlias="${KEY_ALIAS}"             --signingKeyPassword="${KEYSTORE_PASSWORD}"             --keyPassword="${KEY_PASSWORD}"
+
+          bubblewrap build
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: clinic-apk
+          path: twa/app-release-signed.apk
