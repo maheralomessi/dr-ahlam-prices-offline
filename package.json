@@ -1,0 +1,17 @@
+{
+  "name": "dr-ahlam-prices-offline",
+  "version": "1.0.0",
+  "description": "هذا المشروع يعمل كتطبيق ويب (PWA) يدعم: - واجهة ترحيبية + سلايدر صور (محلي داخل المشروع) - لائحة أسعار تفاعلية + حساب إجمالي + مشاركة واتساب - يعمل **أوفلاين بالكامل** (الصور والملفات مخزنة داخل الـ Cache)",
+  "main": "sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/android": "^8.0.2",
+    "@capacitor/core": "^8.0.2"
+  }
+}
