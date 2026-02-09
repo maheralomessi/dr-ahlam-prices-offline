@@ -7,8 +7,60 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkoutname: Build APK (TWA)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Bubblewrap
+        run: npm i -g @bubblewrap/cli
+
+      - name: Build APK non-interactive
+        env:
+          # ✅ رابط GitHub Pages الصحيح (مهم جداً)
+          SITE_URL: https://maheralomessi.github.io/dr-ahlam-prices-offline/
+        run: |
+          mkdir -p twa && cd twa
+          bubblewrap init \
+            --manifest="${SITE_URL}manifest.webmanifest" \
+            --directory="." \
+            --packageId="com.dr.ahlam.prices" \
+            --name="لائحة أسعار د. أحلام" \
+            --launcherName="لائحة الأسعار" \
+            --display="standalone" \
+            --orientation="portrait" \
+            --themeColor="#d4af37" \
+            --backgroundColor="#ffffff" \
+            --iconUrl="${SITE_URL}icons/icon-512.png" \
+            --skipJdkInstall \
+            --noPrompt
+
+          bubblewrap build
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: dr-ahlam-apk
+          path: twa/app-release.apk        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
