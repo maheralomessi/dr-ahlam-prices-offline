@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Dr Ahlam Prices</string>
+    <string name="title_activity_main">Dr Ahlam Prices</string>
+    <string name="package_name">com.drahlam.app</string>
+    <string name="custom_url_scheme">com.drahlam.app</string>
+</resources>

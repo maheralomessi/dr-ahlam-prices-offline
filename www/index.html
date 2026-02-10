@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>عيادة الدكتورة أحلام الحميدي - لائحة الأسعار</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#d4af37">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="لائحة الأسعار">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { cairo: ["Cairo", "sans-serif"] },
+          boxShadow: {
+            soft: "0 10px 30px rgba(2, 6, 23, 0.10)",
+            glow: "0 10px 30px rgba(212, 175, 55, 0.22)"
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root{
+      --gold-1:#d4af37;
+      --gold-2:#f6e07b;
+      --gold-3:#b8860b;
+    }
+    html,body{ height:100%; }
+    body{
+      font-family:"Cairo",sans-serif;
+      background:
+        radial-gradient(1200px 600px at 15% 0%, rgba(212,175,55,.12), transparent 60%),
+        radial-gradient(1200px 600px at 85% 20%, rgba(37,99,235,.10), transparent 55%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      padding-bottom: 140px;
+    }
+    body.dark{
+      background:
+        radial-gradient(1200px 600px at 15% 0%, rgba(212,175,55,.10), transparent 60%),
+        radial-gradient(1200px 600px at 85% 20%, rgba(59,130,246,.12), transparent 55%),
+        linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+      color: #e5e7eb;
+    }
+    body.dark .card-frame{ background: rgba(15,23,42,.72); border-color: rgba(148,163,184,.18); }
+    body.dark .card-header{ color:#e5e7eb; border-bottom-color: rgba(148,163,184,.18); }
+    body.dark .service-name{ color:#e5e7eb; }
+    body.dark input, body.dark select{ background: rgba(15,23,42,.55) !important; color:#e5e7eb !important; border-color: rgba(148,163,184,.22) !important; }
+    body.dark .footer-card{ background: rgba(15,23,42,.72) !important; border-color: rgba(148,163,184,.18) !important; }
+    body.dark .footer-muted{ color: rgba(226,232,240,.75) !important; }
+
+    .gold-text{
+      background: linear-gradient(90deg, var(--gold-1), var(--gold-2), var(--gold-3));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .card-frame{
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(148,163,184,.35);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(2,6,23,.08);
+      overflow: hidden;
+    }
+    .card-header{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding: 12px 14px;
+      background:
+        linear-gradient(90deg, rgba(212,175,55,.16), rgba(246,224,123,.10)),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border-bottom: 1px solid rgba(148,163,184,.25);
+      font-weight: 900;
+      color: #111827;
+    }
+    .chip{
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(212,175,55,.35);
+      background: rgba(212,175,55,.08);
+      color:#7c5b00;
+      white-space:nowrap;
+    }
+
+    .price-row{
+      display:flex; align-items:center; gap:12px;
+      padding: 12px 14px;
+      border-bottom: 1px dashed rgba(148,163,184,.45);
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      position:relative;
+    }
+    .price-row:hover{ background: rgba(212,175,55,.08); transform: translateY(-1px); }
+    .price-row:last-child{ border-bottom:none; }
+
+    .row-icon{
+      width: 28px; height: 28px; border-radius: 999px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(37,99,235,.08);
+      color: #1d4ed8;
+      flex: 0 0 28px;
+    }
+    .service-name{
+      font-weight: 800;
+      color:#111827;
+      flex: 1 1 auto;
+      text-align:right;
+      line-height:1.2;
+    }
+    .price-tag{
+      direction:ltr;
+      text-align:left;
+      min-width: 110px;
+      font-weight: 900;
+      color: var(--gold-3);
+      display:flex; align-items:baseline; justify-content:flex-start; gap:6px;
+      flex: 0 0 auto;
+    }
+    .currency{ font-size: 11px; font-weight: 800; color:#64748b; }
+
+    .check{
+      position:absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%) scale(.8);
+      opacity: 0;
+      transition: opacity .15s ease, transform .15s ease;
+      color: #16a34a;
+      font-size: 18px;
+    }
+    .price-row.selected{
+      background: rgba(22,163,74,.08);
+      border-bottom-color: rgba(22,163,74,.35);
+      outline: 2px solid rgba(22,163,74,.20);
+      outline-offset: -2px;
+    }
+    .price-row.selected .check{ opacity:1; transform: translateY(-50%) scale(1); }
+
+    /* Welcome slider */
+    .slider{
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,.35);
+      box-shadow: 0 10px 30px rgba(2,6,23,.12);
+      background: #000;
+      aspect-ratio: 16 / 9;
+    }
+    .slide{
+      position:absolute; inset:0;
+      opacity:0;
+      transition: opacity .6s ease;
+      background-size: cover;
+      background-position: center;
+    }
+    .slide.active{ opacity:1; }
+    .slider-overlay{
+      position:absolute; inset:0;
+      background: linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.55) 100%);
+      pointer-events:none;
+    }
+    .dots{
+      position:absolute;
+      bottom: 12px;
+      right: 12px;
+      display:flex;
+      gap:8px;
+      z-index:5;
+    }
+    .dot{
+      width:10px; height:10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(255,255,255,.6);
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .dot.active{ background: rgba(212,175,55,.95); transform: scale(1.2); }
+
+    /* Modal */
+    .modal-backdrop{
+      position: fixed; inset:0;
+      background: rgba(2,6,23,.55);
+      display:none;
+      z-index: 9999;
+      padding: 16px;
+    }
+    .modal-backdrop.show{ display:flex; align-items:center; justify-content:center; }
+
+    /* Footer */
+    .footer-icon{
+      width:44px; height:44px;
+      border-radius: 14px;
+      display:flex; align-items:center; justify-content:center;
+      border: 1px solid rgba(148,163,184,.35);
+      background: rgba(255,255,255,.80);
+      transition: transform .12s ease, opacity .12s ease;
+    }
+    .footer-icon:hover{ transform: translateY(-2px); opacity:.95; }
+  </style>
+</head>
+
+<body class="min-h-screen px-4 py-8 md:py-10 font-cairo">
+  <div class="max-w-7xl mx-auto" id="app">
+
+    <!-- Top actions -->
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-2">
+        <button onclick="toggleTheme()" class="px-3 py-2 rounded-xl bg-white/80 border border-slate-200 font-black shadow-soft hover:opacity-95 transition">
+          <i class="fas fa-circle-half-stroke ml-2"></i>الوضع
+        </button>
+        <button id="installBtnTop" class="px-3 py-2 rounded-xl bg-yellow-500 text-slate-900 font-black shadow-soft hover:opacity-95 transition">
+          <i class="fas fa-download ml-2"></i>تثبيت
+        </button>
+      </div>
+      <button onclick="goHome()" class="px-3 py-2 rounded-xl bg-white/80 border border-slate-200 font-black shadow-soft hover:opacity-95 transition">
+        <i class="fas fa-house ml-2"></i>الرئيسية
+      </button>
+    </div>
+
+    <!-- ===================== WELCOME SCREEN ===================== -->
+    <section id="welcomeView" class="card-frame p-5 md:p-7">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+        <!-- Right: intro -->
+        <div class="text-center lg:text-right">
+          <div class="mx-auto lg:mx-0 w-[120px] h-[120px] rounded-2xl bg-white/80 border border-slate-200 shadow-soft flex items-center justify-center overflow-hidden">
+            <img src="./assets/logo.png" alt="شعار العيادة" class="w-full h-full object-contain p-3">
+          </div>
+
+          <h1 class="mt-4 text-2xl md:text-3xl font-black">
+            عيادة الدكتورة <span class="text-red-600">أحلام الحميدي</span>
+          </h1>
+          <p class="mt-2 font-semibold opacity-80">لطب وجراحة الفم والأسنان</p>
+
+          <div class="mt-4 text-4xl md:text-5xl font-black gold-text leading-tight">
+            أهلاً وسهلاً بكم
+          </div>
+
+          <div class="mt-4 text-sm md:text-base font-bold opacity-80">
+            تصفّح صور العيادة، ثم ادخل لائحة الأسعار أو تواصل للحجز والاستفسار.
+          </div>
+
+          <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+            <button onclick="goPrices()"
+              class="px-5 py-3 rounded-2xl bg-slate-900 text-white font-black shadow-soft hover:opacity-95 transition">
+              <i class="fas fa-list-ul ml-2"></i>الدخول إلى لائحة الأسعار
+            </button>
+
+            <button onclick="openContact()"
+              class="px-5 py-3 rounded-2xl bg-[#25D366] text-white font-black shadow-soft hover:opacity-95 transition">
+              <i class="fab fa-whatsapp ml-2"></i>الحجز / الاستفسار
+            </button>
+          </div>
+
+          <div class="mt-5 p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-800 font-bold">
+            <i class="fas fa-location-dot ml-2"></i>
+            إب - شارع تعز - جولة الصوفي - أمام مستشفى دار الشفاء
+          </div>
+        </div>
+
+        <!-- Left: Slider -->
+        <div>
+          <div class="slider" id="slider">
+            <div class="slider-overlay"></div>
+            <div class="dots" id="dots"></div>
+          </div>
+
+          <div class="mt-3 flex items-center justify-between">
+            <button onclick="prevSlide()" class="px-4 py-2 rounded-xl bg-white/80 border border-slate-200 font-black shadow-soft hover:opacity-95 transition">
+              <i class="fas fa-chevron-right ml-2"></i>السابق
+            </button>
+            <button onclick="nextSlide()" class="px-4 py-2 rounded-xl bg-white/80 border border-slate-200 font-black shadow-soft hover:opacity-95 transition">
+              التالي<i class="fas fa-chevron-left mr-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6" id="appFooterHome"></div>
+    </section>
+
+    <!-- ===================== PRICES VIEW ===================== -->
+    <section id="pricesView" class="hidden mt-6">
+      <header class="card-frame p-5 md:p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-center">
+          <div class="text-center md:text-right">
+            <h2 class="text-2xl md:text-3xl font-black">
+              عيادة الدكتورة <span class="text-red-600">أحلام الحميدي</span>
+            </h2>
+            <p class="font-semibold mt-1 opacity-80">لطب وجراحة الفم والأسنان</p>
+            <div class="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-50 text-blue-800 border border-blue-200 text-sm font-bold">
+              <i class="fas fa-hand-pointer animate-pulse"></i>
+              <span>اضغط على الخدمات لتحديد خطة العلاج</span>
+            </div>
+          </div>
+
+          <div class="hidden md:flex items-center justify-center">
+            <div class="w-[110px] h-[110px] rounded-2xl bg-white/80 border border-slate-200 shadow-soft flex items-center justify-center overflow-hidden">
+              <img src="./assets/logo.png" alt="شعار" class="w-full h-full object-contain p-3">
+            </div>
+          </div>
+
+          <div class="text-center md:text-left">
+            <div class="text-4xl md:text-5xl font-black gold-text leading-tight">لائحة<br/>الأسعار</div>
+
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="relative">
+                <i class="fas fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 opacity-50"></i>
+                <input id="searchInput" type="text" placeholder="ابحث عن خدمة..."
+                  class="w-full pr-11 pl-4 py-3 rounded-xl border border-slate-200 bg-white/80 focus:outline-none focus:ring-2 focus:ring-yellow-300 font-bold"
+                  oninput="applyFilters()">
+              </div>
+
+              <div class="relative">
+                <i class="fas fa-filter absolute right-4 top-1/2 -translate-y-1/2 opacity-50"></i>
+                <select id="categorySelect"
+                  class="w-full pr-11 pl-4 py-3 rounded-xl border border-slate-200 bg-white/80 focus:outline-none focus:ring-2 focus:ring-yellow-300 font-bold"
+                  onchange="applyFilters()">
+                  <option value="all">كل الأقسام</option>
+                  <option value="التراكيب">التراكيب</option>
+                  <option value="حشوات الأطفال">حشوات الأطفال</option>
+                  <option value="المعاينة وعلاج العصب">المعاينة وعلاج العصب</option>
+                  <option value="القلع">القلع</option>
+                  <option value="التصفيات (إزالة الترسبات)">التصفيات</option>
+                  <option value="الحشوات">الحشوات</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mt-3 flex items-center justify-center md:justify-start gap-2">
+              <button onclick="openContact()" class="px-3 py-2 rounded-xl bg-[#25D366] text-white font-black shadow-soft hover:opacity-95 transition">
+                <i class="fab fa-whatsapp ml-2"></i>الحجز / الاستفسار
+              </button>
+              <button onclick="goHome()" class="px-3 py-2 rounded-xl bg-white/80 border border-slate-200 font-black shadow-soft hover:opacity-95 transition">
+                <i class="fas fa-arrow-right ml-2"></i>رجوع للرئيسية
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <div class="space-y-6">
+          <section class="card-frame category-card" data-category="التراكيب">
+            <div class="card-header">
+              <div class="flex items-center gap-2"><i class="fas fa-crown text-yellow-700"></i><span>التراكيب</span></div>
+              <span class="chip">اختيارات متعددة</span>
+            </div>
+            <div class="p-2 md:p-3">
+              <div class="price-row service-item" data-name="تركيب خزف مع معدن" onclick="toggleService(event,'تركيب خزف مع معدن',25000,'ريال','التراكيب')">
+                <span class="row-icon"><i class="fas fa-tooth"></i></span><span class="service-name">تركيب خزف مع معدن</span>
+                <span class="price-tag"><span class="currency">ريال</span> 25,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="تركيب خزف درجة أولى" onclick="toggleService(event,'تركيب خزف درجة أولى',20000,'ريال','التراكيب')">
+                <span class="row-icon"><i class="fas fa-star"></i></span><span class="service-name">تركيب خزف درجة أولى</span>
+                <span class="price-tag"><span class="currency">ريال</span> 20,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="تركيب أسنان زركون" onclick="toggleService(event,'تركيب أسنان زركون',250,'دولار','التراكيب')">
+                <span class="row-icon"><i class="fas fa-gem"></i></span><span class="service-name">تركيب أسنان زركون</span>
+                <span class="price-tag"><span class="currency">USD</span> $250</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="تركيب طقم جزئي (فـك)" onclick="toggleService(event,'تركيب طقم جزئي (فـك)',70000,'ريال','التراكيب')">
+                <span class="row-icon"><i class="fas fa-layer-group"></i></span><span class="service-name">تركيب طقم جزئي (فـك)</span>
+                <span class="price-tag"><span class="currency">ريال</span> 70,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="تركيب طقم كامل (فـك واحد)" onclick="toggleService(event,'تركيب طقم كامل (فـك واحد)',100000,'ريال','التراكيب')">
+                <span class="row-icon"><i class="fas fa-shield-heart"></i></span><span class="service-name">تركيب طقم كامل (فـك واحد)</span>
+                <span class="price-tag"><span class="currency">ريال</span> 100,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+            </div>
+          </section>
+
+          <section class="card-frame category-card" data-category="حشوات الأطفال">
+            <div class="card-header">
+              <div class="flex items-center gap-2"><i class="fas fa-baby text-blue-700"></i><span>حشوات الأطفال</span></div>
+              <span class="chip">عناية خاصة</span>
+            </div>
+            <div class="p-2 md:p-3">
+              <div class="price-row service-item" data-name="خلع أطفال" onclick="toggleService(event,'خلع أطفال',1500,'ريال','حشوات الأطفال')">
+                <span class="row-icon"><i class="fas fa-person-circle-minus"></i></span><span class="service-name">خلع أطفال</span>
+                <span class="price-tag"><span class="currency">ريال</span> 1,500</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="حشوة مؤقتة" onclick="toggleService(event,'حشوة مؤقتة',5000,'ريال','حشوات الأطفال')">
+                <span class="row-icon"><i class="fas fa-hourglass-half"></i></span><span class="service-name">حشوة مؤقتة</span>
+                <span class="price-tag"><span class="currency">ريال</span> 5,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="حشوة زجاجي" onclick="toggleService(event,'حشوة زجاجي',4000,'ريال','حشوات الأطفال')">
+                <span class="row-icon"><i class="fas fa-droplet"></i></span><span class="service-name">حشوة زجاجي</span>
+                <span class="price-tag"><span class="currency">ريال</span> 4,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="حشوة للسن دائم" onclick="toggleService(event,'حشوة للسن دائم',8000,'ريال','حشوات الأطفال')">
+                <span class="row-icon"><i class="fas fa-check"></i></span><span class="service-name">حشوة للسن دائم</span>
+                <span class="price-tag"><span class="currency">ريال</span> 8,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="حافظ مسافة" onclick="toggleService(event,'حافظ مسافة',25000,'ريال','حشوات الأطفال')">
+                <span class="row-icon"><i class="fas fa-ruler-horizontal"></i></span><span class="service-name">حافظ مسافة</span>
+                <span class="price-tag"><span class="currency">ريال</span> 25,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="حارس ليلي" onclick="toggleService(event,'حارس ليلي',25000,'ريال','حشوات الأطفال')">
+                <span class="row-icon"><i class="fas fa-moon"></i></span><span class="service-name">حارس ليلي</span>
+                <span class="price-tag"><span class="currency">ريال</span> 25,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="space-y-6">
+          <section class="card-frame category-card" data-category="المعاينة وعلاج العصب">
+            <div class="card-header">
+              <div class="flex items-center gap-2"><i class="fas fa-stethoscope text-emerald-700"></i><span>المعاينة وعلاج العصب</span></div>
+              <span class="chip">تشخيص وعلاج</span>
+            </div>
+            <div class="p-2 md:p-3">
+              <div class="price-row service-item" data-name="معاينة (كشف)" onclick="toggleService(event,'معاينة (كشف)',1000,'ريال','المعاينة وعلاج العصب')">
+                <span class="row-icon"><i class="fas fa-clipboard-check"></i></span><span class="service-name">معاينة (كشف)</span>
+                <span class="price-tag"><span class="currency">ريال</span> 1,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="سحب عصب سن أمامي" onclick="toggleService(event,'سحب عصب سن أمامي',12000,'ريال','المعاينة وعلاج العصب')">
+                <span class="row-icon"><i class="fas fa-bolt"></i></span><span class="service-name">سحب عصب سن أمامي</span>
+                <span class="price-tag"><span class="currency">ريال</span> 12,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="سحب عصب (ضواحك)" onclick="toggleService(event,'سحب عصب (ضواحك)',16000,'ريال','المعاينة وعلاج العصب')">
+                <span class="row-icon"><i class="fas fa-bolt-lightning"></i></span><span class="service-name">سحب عصب (ضواحك)</span>
+                <span class="price-tag"><span class="currency">ريال</span> 16,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="سحب عصب (طواحن)" onclick="toggleService(event,'سحب عصب (طواحن)',20000,'ريال','المعاينة وعلاج العصب')">
+                <span class="row-icon"><i class="fas fa-wand-magic-sparkles"></i></span><span class="service-name">سحب عصب (طواحن)</span>
+                <span class="price-tag"><span class="currency">ريال</span> 20,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="سحب عصب مستعجل (جلسة واحدة)" onclick="toggleService(event,'سحب عصب مستعجل (جلسة واحدة)',25000,'ريال','المعاينة وعلاج العصب')">
+                <span class="row-icon"><i class="fas fa-clock"></i></span><span class="service-name">سحب عصب مستعجل (جلسة واحدة)</span>
+                <span class="price-tag"><span class="currency">ريال</span> 25,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="إعادة سحب عصب" onclick="toggleService(event,'إعادة سحب عصب',20000,'ريال','المعاينة وعلاج العصب')">
+                <span class="row-icon"><i class="fas fa-rotate-right"></i></span><span class="service-name">إعادة سحب عصب</span>
+                <span class="price-tag"><span class="currency">ريال</span> 20,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+            </div>
+          </section>
+
+          <section class="card-frame category-card" data-category="القلع">
+            <div class="card-header">
+              <div class="flex items-center gap-2"><i class="fas fa-teeth-open text-rose-700"></i><span>القلع</span></div>
+              <span class="chip">إجراءات</span>
+            </div>
+            <div class="p-2 md:p-3">
+              <div class="price-row service-item" data-name="قلع سن أمامي" onclick="toggleService(event,'قلع سن أمامي',5000,'ريال','القلع')">
+                <span class="row-icon"><i class="fas fa-arrow-up-right-dots"></i></span><span class="service-name">قلع سن أمامي</span>
+                <span class="price-tag"><span class="currency">ريال</span> 5,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="قلع سن خلفي" onclick="toggleService(event,'قلع سن خلفي',6000,'ريال','القلع')">
+                <span class="row-icon"><i class="fas fa-arrow-down"></i></span><span class="service-name">قلع سن خلفي</span>
+                <span class="price-tag"><span class="currency">ريال</span> 6,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="خلع جراحي" onclick="toggleService(event,'خلع جراحي',10000,'ريال','القلع')">
+                <span class="row-icon"><i class="fas fa-kit-medical"></i></span><span class="service-name">خلع جراحي</span>
+                <span class="price-tag"><span class="currency">ريال</span> 10,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="فتح لثة وقطع لثة" onclick="toggleService(event,'فتح لثة وقطع لثة',5000,'ريال','القلع')">
+                <span class="row-icon"><i class="fas fa-scissors"></i></span><span class="service-name">فتح لثة وقطع لثة</span>
+                <span class="price-tag"><span class="currency">ريال</span> 5,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="سن عقل مطمور" onclick="toggleService(event,'سن عقل مطمور',50000,'ريال','القلع')">
+                <span class="row-icon"><i class="fas fa-triangle-exclamation"></i></span><span class="service-name">سن عقل مطمور</span>
+                <span class="price-tag"><span class="currency">ريال</span> 50,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="قلع سن العقل" onclick="toggleService(event,'قلع سن العقل',8000,'ريال','القلع')">
+                <span class="row-icon"><i class="fas fa-teeth"></i></span><span class="service-name">قلع سن العقل</span>
+                <span class="price-tag"><span class="currency">ريال</span> 8,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="space-y-6">
+          <section class="card-frame category-card" data-category="التصفيات (إزالة الترسبات)">
+            <div class="card-header">
+              <div class="flex items-center gap-2"><i class="fas fa-wind text-cyan-700"></i><span>التصفيات (إزالة الترسبات)</span></div>
+              <span class="chip">تنظيف</span>
+            </div>
+            <div class="p-2 md:p-3">
+              <div class="price-row service-item" data-name="تنظيف بسيط" onclick="toggleService(event,'تنظيف بسيط',5000,'ريال','التصفيات (إزالة الترسبات)')">
+                <span class="row-icon"><i class="fas fa-sparkles"></i></span><span class="service-name">تنظيف بسيط</span>
+                <span class="price-tag"><span class="currency">ريال</span> 5,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="تنظيف وسط" onclick="toggleService(event,'تنظيف وسط',8000,'ريال','التصفيات (إزالة الترسبات)')">
+                <span class="row-icon"><i class="fas fa-water"></i></span><span class="service-name">تنظيف وسط</span>
+                <span class="price-tag"><span class="currency">ريال</span> 8,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="تنظيف معقد" onclick="toggleService(event,'تنظيف معقد',10000,'ريال','التصفيات (إزالة الترسبات)')">
+                <span class="row-icon"><i class="fas fa-shield"></i></span><span class="service-name">تنظيف معقد</span>
+                <span class="price-tag"><span class="currency">ريال</span> 10,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+            </div>
+          </section>
+
+          <section class="card-frame category-card" data-category="الحشوات">
+            <div class="card-header">
+              <div class="flex items-center gap-2"><i class="fas fa-fill-drip text-indigo-700"></i><span>الحشوات</span></div>
+              <span class="chip">ترميم</span>
+            </div>
+            <div class="p-2 md:p-3">
+              <div class="price-row service-item" data-name="حشوات فضة" onclick="toggleService(event,'حشوات فضة',8000,'ريال','الحشوات')">
+                <span class="row-icon"><i class="fas fa-coins"></i></span><span class="service-name">حشوات فضة</span>
+                <span class="price-tag"><span class="currency">ريال</span> 8,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="حشوات ضوئية" onclick="toggleService(event,'حشوات ضوئية',12000,'ريال','الحشوات')">
+                <span class="row-icon"><i class="fas fa-lightbulb"></i></span><span class="service-name">حشوات ضوئية</span>
+                <span class="price-tag"><span class="currency">ريال</span> 12,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+              <div class="price-row service-item" data-name="بناء سن (حشو + وتد)" onclick="toggleService(event,'بناء سن (حشو + وتد)',14000,'ريال','الحشوات')">
+                <span class="row-icon"><i class="fas fa-screwdriver-wrench"></i></span><span class="service-name">بناء سن (حشو + وتد)</span>
+                <span class="price-tag"><span class="currency">ريال</span> 14,000</span><i class="fas fa-circle-check check"></i>
+              </div>
+            </div>
+          </section>
+        </div>
+
+      </div>
+
+      <div class="mt-6" id="appFooterPrices"></div>
+    </section>
+
+    <!-- Fixed Bottom Selection Bar -->
+    <div id="selectionBar" class="fixed bottom-0 left-0 right-0 z-50 transform translate-y-full transition-transform duration-200">
+      <div class="mx-auto max-w-7xl px-4 pb-4">
+        <div class="card-frame border border-yellow-200 shadow-glow">
+          <div class="p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="text-center md:text-right">
+              <div class="text-xs md:text-sm opacity-70 font-extrabold">إجمالي الخطة العلاجية المتوقعة</div>
+              <div class="text-2xl md:text-3xl font-black text-yellow-700" id="totalRiyal">0 <span class="text-sm">ريال</span></div>
+              <div class="text-xs opacity-70 mt-1 hidden" id="totalDollarWrap">
+                + <span id="totalDollar">0</span> دولار
+              </div>
+              <div class="text-[11px] opacity-60 mt-1" id="countSelected">0 خدمة محددة</div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 justify-center md:justify-end">
+              <button onclick="copyPlan()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-black hover:bg-slate-200 transition">
+                <i class="fas fa-copy ml-2"></i>نسخ الخطة
+              </button>
+
+              <button onclick="clearSelection()" class="px-4 py-2 rounded-xl bg-slate-200 text-slate-800 font-black hover:bg-slate-300 transition">
+                <i class="fas fa-xmark ml-2"></i>مسح
+              </button>
+
+              <button onclick="bookAppointment()" class="px-5 py-2 rounded-xl bg-[#25D366] text-white font-black hover:opacity-95 transition shadow-soft flex items-center gap-2">
+                <i class="fab fa-whatsapp text-xl"></i>
+                الحجز عبر واتساب
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Contact Modal -->
+  <div id="contactModal" class="modal-backdrop">
+    <div class="card-frame max-w-xl w-full p-5 md:p-6">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-xl font-black">
+          <i class="fas fa-headset ml-2 text-yellow-700"></i>الحجز / الاستفسار
+        </div>
+        <button onclick="closeContact()" class="px-3 py-2 rounded-xl bg-slate-200 font-black hover:bg-slate-300 transition">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 font-bold">
+        <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900">
+          <i class="fas fa-location-dot ml-2"></i>
+          إب - شارع تعز - جولة الصوفي - أمام مستشفى دار الشفاء
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <a class="p-4 rounded-2xl bg-white/80 border border-slate-200 hover:opacity-95 transition block"
+             href="tel:+967772022390">
+            <div class="text-sm opacity-70">اتصال</div>
+            <div dir="ltr" class="text-lg font-black"><i class="fas fa-phone ml-2 text-blue-600"></i>+967 772 022 390</div>
+          </a>
+
+          <a class="p-4 rounded-2xl bg-white/80 border border-slate-200 hover:opacity-95 transition block"
+             href="https://wa.me/967778952739" target="_blank" rel="noopener">
+            <div class="text-sm opacity-70">واتساب</div>
+            <div dir="ltr" class="text-lg font-black"><i class="fab fa-whatsapp ml-2 text-emerald-600"></i>+967 778 952 739</div>
+          </a>
+        </div>
+
+        <div class="flex flex-wrap gap-2 justify-end pt-2">
+          <button onclick="copyContact()" class="px-4 py-2 rounded-xl bg-slate-900 text-white font-black hover:opacity-95 transition">
+            <i class="fas fa-copy ml-2"></i>نسخ البيانات
+          </button>
+          <button onclick="bookAppointment()" class="px-4 py-2 rounded-xl bg-[#25D366] text-white font-black hover:opacity-95 transition">
+            <i class="fab fa-whatsapp ml-2"></i>إرسال رسالة واتساب
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme
+    const THEME_KEY = "clinic_theme";
+    function applyThemeFromStorage(){
+      const t = localStorage.getItem(THEME_KEY);
+      if (t === "dark") document.body.classList.add("dark");
+      else document.body.classList.remove("dark");
+    }
+    function toggleTheme(){
+      document.body.classList.toggle("dark");
+      localStorage.setItem(THEME_KEY, document.body.classList.contains("dark") ? "dark" : "light");
+    }
+    applyThemeFromStorage();
+
+    // Views
+    const welcomeView = document.getElementById("welcomeView");
+    const pricesView  = document.getElementById("pricesView");
+    function goPrices(){ welcomeView.classList.add("hidden"); pricesView.classList.remove("hidden"); window.scrollTo({top:0, behavior:"smooth"}); }
+    function goHome(){ pricesView.classList.add("hidden"); welcomeView.classList.remove("hidden"); window.scrollTo({top:0, behavior:"smooth"}); }
+
+    // Slider (LOCAL, OFFLINE)
+    const clinicImages = [
+      "./assets/slider/1.jpg",
+      "./assets/slider/2.jpg",
+      "./assets/slider/3.jpg",
+      "./assets/slider/4.jpg",
+      "./assets/slider/5.jpg",
+      "./assets/slider/6.jpg"
+    ];
+
+    const sliderEl = document.getElementById("slider");
+    const dotsEl = document.getElementById("dots");
+    let slides = [];
+    let dots = [];
+    let current = 0;
+    let sliderTimer = null;
+
+    function buildSlider(){
+      clinicImages.forEach((src, i) => {
+        const s = document.createElement("div");
+        s.className = "slide" + (i===0 ? " active" : "");
+        s.style.backgroundImage = `url('${src}')`;
+        sliderEl.appendChild(s);
+        slides.push(s);
+
+        const d = document.createElement("div");
+        d.className = "dot" + (i===0 ? " active" : "");
+        d.addEventListener("click", () => goSlide(i));
+        dotsEl.appendChild(d);
+        dots.push(d);
+      });
+      startAuto();
+    }
+
+    function goSlide(i){
+      slides[current].classList.remove("active");
+      dots[current].classList.remove("active");
+      current = i;
+      slides[current].classList.add("active");
+      dots[current].classList.add("active");
+      restartAuto();
+    }
+    function nextSlide(){ goSlide((current + 1) % slides.length); }
+    function prevSlide(){ goSlide((current - 1 + slides.length) % slides.length); }
+    function startAuto(){ sliderTimer = setInterval(nextSlide, 3500); }
+    function restartAuto(){ clearInterval(sliderTimer); startAuto(); }
+    buildSlider();
+
+    // Footer
+    function renderFooter(){
+      const year = new Date().getFullYear();
+      const footerHtml = `
+        <footer class="footer-card card-frame p-5 md:p-6">
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="text-center md:text-right">
+              <div class="font-black text-lg">
+                تطوير : <span dir="ltr" class="text-yellow-700">Maher alOmessi</span>
+              </div>
+              <div class="footer-muted text-sm opacity-80 mt-1">
+                <span class="font-black">®</span> جميع الحقوق محفوظة ${year}
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <a class="footer-icon" title="WhatsApp"
+                 href="https://wa.me/967777763642" target="_blank" rel="noopener">
+                <i class="fab fa-whatsapp text-2xl text-emerald-600"></i>
+              </a>
+              <a class="footer-icon" title="Facebook"
+                 href="https://www.facebook.com/@omissi" target="_blank" rel="noopener">
+                <i class="fab fa-facebook text-2xl text-blue-700"></i>
+              </a>
+              <a class="footer-icon" title="Instagram"
+                 href="https://www.instagram.com/m.omessi/" target="_blank" rel="noopener">
+                <i class="fab fa-instagram text-2xl text-pink-600"></i>
+              </a>
+            </div>
+          </div>
+        </footer>
+      `;
+      document.getElementById("appFooterHome").innerHTML = footerHtml;
+      document.getElementById("appFooterPrices").innerHTML = footerHtml;
+    }
+    renderFooter();
+
+    // Prices selection
+    let selectedServices = [];
+    let totalRiyal = 0;
+    let totalDollar = 0;
+
+    function toggleService(e, name, price, currency, category) {
+      const row = e.currentTarget;
+      const idx = selectedServices.findIndex(s => s.name === name);
+
+      if (idx === -1) { selectedServices.push({ name, price, currency, category }); row.classList.add("selected"); }
+      else { selectedServices.splice(idx, 1); row.classList.remove("selected"); }
+
+      updateTotals();
+    }
+
+    function updateTotals() {
+      totalRiyal = 0; totalDollar = 0;
+      for (const s of selectedServices) {
+        if (s.currency === "ريال") totalRiyal += s.price;
+        if (s.currency === "دولار") totalDollar += s.price;
+      }
+
+      document.getElementById("totalRiyal").innerHTML =
+        totalRiyal.toLocaleString("en-US") + ' <span class="text-sm">ريال</span>';
+
+      const wrap = document.getElementById("totalDollarWrap");
+      if (totalDollar > 0) { wrap.classList.remove("hidden"); document.getElementById("totalDollar").innerText = totalDollar; }
+      else { wrap.classList.add("hidden"); }
+
+      document.getElementById("countSelected").innerText = `${selectedServices.length} خدمة محددة`;
+
+      const bar = document.getElementById("selectionBar");
+      if (selectedServices.length > 0) bar.classList.remove("translate-y-full");
+      else bar.classList.add("translate-y-full");
+    }
+
+    function clearSelection() {
+      selectedServices = [];
+      document.querySelectorAll(".price-row").forEach(r => r.classList.remove("selected"));
+      updateTotals();
+    }
+
+    // WhatsApp
+    function buildMessage() {
+      let msg = "مرحباً دكتورة أحلام، أرغب بحجز موعد / استفسار.\n\nالخدمات المطلوبة:\n";
+      if (selectedServices.length === 0) msg += "- (لم يتم تحديد خدمات بعد)\n";
+      else selectedServices.forEach(s => { msg += `- ${s.name} (${s.price} ${s.currency})\n`; });
+
+      msg += "\n------------------\n";
+      msg += `الإجمالي التقريبي: ${totalRiyal.toLocaleString("en-US")} ريال`;
+      if (totalDollar > 0) msg += ` + ${totalDollar} دولار`;
+      msg += "\n\nالعنوان: إب - شارع تعز - جولة الصوفي - أمام مستشفى دار الشفاء";
+      return msg;
+    }
+
+    function bookAppointment() {
+      const phoneNumber = "967772022390";
+      const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(buildMessage())}`;
+      window.open(url, "_blank");
+    }
+
+    // Copy helpers
+    async function copyText(text){
+      try { await navigator.clipboard.writeText(text); toast("تم النسخ ✅"); }
+      catch {
+        const ta = document.createElement("textarea");
+        ta.value = text; document.body.appendChild(ta);
+        ta.select(); document.execCommand("copy"); ta.remove();
+        toast("تم النسخ ✅");
+      }
+    }
+    function copyPlan(){ copyText(buildMessage()); }
+    function copyContact(){
+      const info =
+`عيادة الدكتورة أحلام الحميدي
+العنوان: إب - شارع تعز - جولة الصوفي - أمام مستشفى دار الشفاء
+اتصال: +967 772 022 390
+واتساب: +967 778 952 739`;
+      copyText(info);
+    }
+
+    // Search / Filter
+    function applyFilters() {
+      const q = (document.getElementById("searchInput").value || "").trim();
+      const cat = document.getElementById("categorySelect").value;
+
+      const cards = document.querySelectorAll(".category-card");
+      cards.forEach(card => {
+        const cardCat = card.getAttribute("data-category");
+        const allowCard = (cat === "all" || cat === cardCat);
+
+        let anyVisible = false;
+        card.querySelectorAll(".service-item").forEach(item => {
+          const name = item.getAttribute("data-name") || "";
+          const match = !q || name.includes(q);
+          const show = allowCard && match;
+          item.style.display = show ? "" : "none";
+          if (show) anyVisible = true;
+        });
+
+        card.style.display = anyVisible ? "" : "none";
+      });
+    }
+
+    // Modal
+    const contactModal = document.getElementById("contactModal");
+    function openContact(){ contactModal.classList.add("show"); }
+    function closeContact(){ contactModal.classList.remove("show"); }
+    contactModal.addEventListener("click", (e) => { if (e.target === contactModal) closeContact(); });
+
+    // Toast
+    let toastTimer = null;
+    function toast(text){
+      let el = document.getElementById("toastEl");
+      if(!el){
+        el = document.createElement("div");
+        el.id = "toastEl";
+        el.className = "fixed top-5 right-5 z-[9999] px-4 py-3 rounded-xl bg-slate-900 text-white font-bold shadow-soft opacity-0 translate-y-[-6px] transition";
+        document.body.appendChild(el);
+      }
+      el.textContent = text;
+      el.style.opacity = "1";
+      el.style.transform = "translateY(0)";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(-6px)";
+      }, 1600);
+    }
+
+    // PWA install
+    let deferredPrompt = null;
+    const installBtnTop = document.getElementById("installBtnTop");
+    window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferredPrompt = e; });
+
+    installBtnTop.addEventListener("click", async () => {
+      if (!deferredPrompt) {
+        toast("للتثبيت: افتح من Chrome على Android عبر HTTPS ثم (إضافة للشاشة الرئيسية)");
+        return;
+      }
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+    });
+
+    // SW
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", async () => {
+        try { await navigator.serviceWorker.register("./sw.js"); } catch {}
+      });
+    }
+  </script>
+</body>
+</html>
