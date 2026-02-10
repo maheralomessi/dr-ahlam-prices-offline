@@ -16,6 +16,30 @@ jobs:
 
     steps:
       - name: Checkout
+        uses: actions/checkout@v
+
+cd ~/dr-ahlam-prices-offline
+mkdir -p .github/workflows
+
+cat > .github/workflows/build-apk.yml <<'YML'
+name: Build APK (Capacitor)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master", "main" ]
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -36,14 +60,16 @@ jobs:
       - name: Install npm deps
         run: |
           npm ci || npm install
+          # ensure capacitor packages exist (no-save)
+          npm i --no-save @capacitor/core @capacitor/cli @capacitor/android
 
       - name: Ensure Android platform + sync
         run: |
-          npx cap --version
+          npx --yes -p @capacitor/cli cap --version
           if [ ! -d android ]; then
-            npx cap add android
+            npx --yes -p @capacitor/cli cap add android
           fi
-          npx cap sync android
+          npx --yes -p @capacitor/cli cap sync android
 
       - name: Build Debug APK
         run: |
