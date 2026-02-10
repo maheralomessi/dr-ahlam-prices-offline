@@ -13,15 +13,17 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Tools
+      - name: Install Dependencies
         run: |
-          npm install @capacitor/cli @capacitor/core @capacitor/android
+          npm install @capacitor/cli @capacitor/core @capacitor/android @capacitor/assets
           npm install
 
-      - name: Fix and Sync
+      - name: Generate Assets (Icons & Splash)
         run: |
-          npx cap npx cap add android || true
-          npx cap sync android
+          npx capacitor-assets generate --android --icon-path icon.png --splash-path Splash.png
+
+      - name: Sync Capacitor
+        run: npx cap sync android
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -34,9 +36,9 @@ jobs:
           chmod +x android/gradlew
           cd android && ./gradlew assembleDebug
 
-      - name: Upload Result
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Dr-Ahlam-App-Ready
+          name: Dr-Ahlam-Final-App
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
