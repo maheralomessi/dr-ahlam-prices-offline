@@ -13,14 +13,16 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Dependencies
+      - name: Install Tools
         run: |
           npm install @capacitor/cli @capacitor/core @capacitor/android @capacitor/assets
           npm install
 
-      - name: Generate Assets (Icons & Splash)
+      - name: Generate Assets
         run: |
-          npx capacitor-assets generate --android --icon-path icon.png --splash-path Splash.png
+          # تأكد من أن الصور موجودة بأسماء صحيحة قبل التوليد
+          mv Splash.png splash.png 2>/dev/null || true
+          npx capacitor-assets generate --android
 
       - name: Sync Capacitor
         run: npx cap sync android
