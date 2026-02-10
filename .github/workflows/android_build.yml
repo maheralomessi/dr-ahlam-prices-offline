@@ -1,12 +1,46 @@
-      - name: Build Official APK
+name: Build Official APK
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Tools
+        run: |
+          npm install @capacitor/cli @capacitor/core @capacitor/android @capacitor/assets
+          npm install
+
+      - name: Generate Assets
+        run: |
+          mv Splash.png splash.png 2>/dev/null || true
+          npx capacitor-assets generate --android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Build APK
         run: |
           chmod +x android/gradlew
-          cd android && ./gradlew assembleRelease
+          cd android && ./gradlew assembleDebug
 
-      - name: Upload Official APK
+      - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
-          name: Dr-Ahlam-Clinic-Official
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          name: Dr-Ahlam-Clinic-Final
+          path: android/app/build/outputs/apk/debug/app-debug.apk
 
 
