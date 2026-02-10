@@ -1,0 +1,73 @@
+name: Capacitor Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master", "main" ]
+
+concurrency:
+  group: capacitor-debug-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install deps + Capacitor CLI
+        run: |
+          test -f package.json || npm init -y
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install || true
+          fi
+          npm install --no-save @capacitor/cli @capacitor/core @capacitor/android
+
+      - name: Ensure webDir exists + config
+        run: |
+          test -d www || { echo "Missing ./www"; ls -la; exit 1; }
+          if [ ! -f capacitor.config.json ] && [ ! -f capacitor.config.ts ] && [ ! -f capacitor.config.js ]; then
+            cat > capacitor.config.json <<'JSON'
+{
+  "appId": "com.dr.ahlam.prices",
+  "appName": "Dr Ahlam Prices",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
+JSON
+          fi
+
+      - name: Add Android + Sync
+        run: |
+          npx cap --version
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
