@@ -1,5 +1,6 @@
 {
 	"appId": "com.drahlam.app",
-	"appName": "Dr Ahlam Prices",
-	"webDir": "www"
+	"appName": "Dr Ahlam Clinic",
+	"webDir": "www",
+	"bundledWebRuntime": false
 }
