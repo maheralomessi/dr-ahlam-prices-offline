@@ -1,13 +1,18 @@
-name: Build APK (TWA)
+name: Build APK (Capacitor)
 
 on:
-  push:
-    branches: [ "master" ]
   workflow_dispatch:
+  push:
+    branches: [ "master", "main" ]
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
 
     steps:
       - name: Checkout
@@ -17,6 +22,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -24,50 +30,29 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Install Bubblewrap
-        run: npm i -g @bubblewrap/cli
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Generate keystore (auto)
+      - name: Install npm deps
         run: |
-          keytool -genkeypair -v \
-            -keystore release.keystore \
-            -storepass android \
-            -keypass android \
-            -alias release \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -dname "CN=Maher alOmessi, OU=Dev, O=Maher, L=Yemen, S=YE, C=YE"
+          npm ci || npm install
 
-      - name: Build APK (non-interactive)
-        env:
-          KEYSTORE_PASSWORD: android
-          KEY_PASSWORD: android
-          KEY_ALIAS: release
+      - name: Ensure Android platform + sync
         run: |
-          SITE_URL="https://maheralomessi.github.io/dr-ahlam-prices-offline/"
+          npx cap --version
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+          npx cap sync android
 
-          mkdir -p twa && cd twa
-
-          # answer "n" to Bubblewrap JDK prompt to avoid interactive CI failure
-          yes n | bubblewrap init \
-            --manifest="${SITE_URL}manifest.webmanifest" \
-            --directory="." \
-            --packageId="com.dr.ahlam.prices" \
-            --name="لائحة أسعار د. أحلام" \
-            --launcherName="لائحة الأسعار" \
-            --display="standalone" \
-            --orientation="portrait" \
-            --themeColor="#d4af37" \
-            --backgroundColor="#ffffff" \
-            --iconUrl="${SITE_URL}icons/icon-512.png" \
-            --signingKeyPath="../release.keystore" \
-            --signingKeyAlias="${KEY_ALIAS}" \
-            --signingKeyPassword="${KEYSTORE_PASSWORD}" \
-            --keyPassword="${KEY_PASSWORD}"
-
-          bubblewrap build
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-apk
-          path: twa/app-release-signed.apk
+          name: app-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
